@@ -28,6 +28,6 @@ namespace WebApplication1.Domain.Models
         [BsonElement("CategoryId")]
         public int CategoryId { get; set; }
 
-        public IEnumerable<Category> Category { get; set; }
+        public IEnumerable<Category> Category { get; set; } = new List<Category>();
     }
 }
