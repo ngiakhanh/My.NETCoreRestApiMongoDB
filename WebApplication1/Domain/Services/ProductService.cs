@@ -17,29 +17,102 @@ namespace WebApplication1.Domain.Services
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<IEnumerable<Product>> ListAsync()
+        public async Task<ProductResponse> ListAsync()
         {
-            return await _productRepository.ListAsync();
+            try
+            {
+                var results = await _productRepository.ListAsync();
+                if (results == null)
+                {
+                    return new ProductResponse("Product not found");
+                }
+                return new ProductResponse(results);
+            }
+            catch (Exception ex)
+            {
+                return new ProductResponse($"An error occurred when getting the list of products: {ex.Message}");
+            }
         }
 
-        public async Task<Product> FindByIdAsync(int id)
+        public async Task<ProductResponse> FindByIdAsync(int id)
         {
-            return await _productRepository.FindByIdAsync(id);
+            try
+            {
+                var result = await _productRepository.FindByIdAsync(id);
+                if (result == null)
+                {
+                    return new ProductResponse("Product not found");
+                }
+                IEnumerable<Product> resultList = new List<Product>() { result };
+                return new ProductResponse(resultList);
+            }
+            catch (Exception ex)
+            {
+                return new ProductResponse($"An error occurred when finding the product: {ex.Message}");
+            }
         }
 
-        public Task<ProductResponse> SaveAsync(Product product)
+        public async Task<ProductResponse> SaveAsync(Product product)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var existingProduct = await _productRepository.FindByIdAsync(product.Id);
+                if (existingProduct != null)
+                {
+                    return new ProductResponse("Product already existed");
+                }
+
+                await _productRepository.AddAsync(product);
+                //await _unitOfWork.CompleteAsync();
+                return await FindByIdAsync(product.Id);
+            }
+            catch (Exception ex)
+            {
+                return new ProductResponse($"An error occurred when saving the product: {ex.Message}");
+            }
+
         }
 
-        public Task<ProductResponse> UpdateAsync(int id, Product product)
+        public async Task<ProductResponse> UpdateAsync(int id, Product product)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var existingProduct = await _productRepository.FindByIdAsync(id);
+                if (existingProduct == null)
+                {
+                    return new ProductResponse("Product not found");
+                }
+                product._id = existingProduct._id;
+
+                await _productRepository.UpdateAsync(id, product);
+                //await _unitOfWork.CompleteAsync();
+                return await FindByIdAsync(product.Id);
+            }
+            catch (Exception ex)
+            {
+                return new ProductResponse($"An error occurred when updating the product: {ex.Message}");
+            }
         }
 
-        public Task<ProductResponse> DeleteAsync(int id)
+        public async Task<ProductResponse> DeleteAsync(int id)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var existingProduct = await _productRepository.FindByIdAsync(id);
+                if (existingProduct == null)
+                {
+                    return new ProductResponse("Product not found");
+                }
+
+                await _productRepository.RemoveAsync(id);
+                //await _unitOfWork.CompleteAsync();
+                IEnumerable<Product> existingProductList = new List<Product>() { existingProduct };
+                return new ProductResponse(existingProductList);
+            }
+            catch (Exception ex)
+            {
+                return new ProductResponse($"An error occurred when deleting the product: {ex.Message}");
+            }
         }
     }
 }

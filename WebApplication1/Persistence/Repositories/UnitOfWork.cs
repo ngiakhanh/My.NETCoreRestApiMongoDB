@@ -3,7 +3,6 @@ using MongoDB.Driver;
 using System.Threading.Tasks;
 using WebApplication1.Domain.Models;
 using WebApplication1.Domain.Repositories;
-using WebApplication1.Persistence.Context;
 
 namespace WebApplication1.Persistence.Repositories
 {

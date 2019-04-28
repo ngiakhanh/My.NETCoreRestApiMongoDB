@@ -1,12 +1,13 @@
-﻿using WebApplication1.Domain.Models;
+﻿using System.Collections.Generic;
+using WebApplication1.Domain.Models;
 
 namespace WebApplication1.Domain.Services.Communication
 {
     public class ProductResponse : BaseResponse
     {
-        public Product Product { get; private set; }
+        public IEnumerable<Product> Product { get; private set; }
 
-        private ProductResponse(bool success, string message, Product product) : base(success, message)
+        private ProductResponse(bool success, string message, IEnumerable<Product> product) : base(success, message)
         {
             Product = product;
         }
@@ -16,7 +17,7 @@ namespace WebApplication1.Domain.Services.Communication
         /// </summary>
         /// <param name="product">Saved product.</param>
         /// <returns>Response.</returns>
-        public ProductResponse(Product product) : this(true, string.Empty, product)
+        public ProductResponse(IEnumerable<Product> product) : this(true, string.Empty, product)
         { }
 
         /// <summary>

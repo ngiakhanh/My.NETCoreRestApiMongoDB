@@ -8,9 +8,9 @@ namespace WebApplication1.Domain.Services.Communication
 {
     public class CategoryResponse : BaseResponse
     {
-        public Category Category { get; private set; }
+        public IEnumerable<Category> Category { get; private set; }
 
-        private CategoryResponse(bool success, string message, Category category) : base(success, message)
+        private CategoryResponse(bool success, string message, IEnumerable<Category> category) : base(success, message)
         {
             Category = category;
         }
@@ -20,7 +20,7 @@ namespace WebApplication1.Domain.Services.Communication
         /// </summary>
         /// <param name="category">Saved category.</param>
         /// <returns>Response.</returns>
-        public CategoryResponse(Category category) : this(true, string.Empty, category)
+        public CategoryResponse(IEnumerable<Category> category) : this(true, string.Empty, category)
         { }
 
         /// <summary>

@@ -1,9 +1,7 @@
 ﻿using AutoMapper;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using WebApplication1.Domain.Models;
+using WebApplication1.Extensions;
+using WebApplication1.Resources;
 
 namespace WebApplication1.Mapping
 {
@@ -12,6 +10,7 @@ namespace WebApplication1.Mapping
         public ResourceToModelProfile()
         {
             CreateMap<SaveCategoryResource, Category>();
+            CreateMap<SaveProductResource, Product>();
         }
     }
 }

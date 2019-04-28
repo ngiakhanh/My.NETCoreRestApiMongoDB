@@ -23,23 +23,34 @@ namespace WebApplication1.Controllers
         }
 
         [HttpGet]
-        public async Task<IEnumerable<CategoryResource>> GetAllAsync()
+        public async Task<IActionResult> GetAllAsync()
         {
-            var categories = await _categoryService.ListAsync();
-            var resources = _mapper.Map<IEnumerable<Category>, IEnumerable<CategoryResource>>(categories);
-            return resources;
+            var results = await _categoryService.ListAsync();
+            if (!results.Success)
+            {
+                return BadRequest(results.Message);
+            }
+            var resources = _mapper.Map<IEnumerable<Category>, IEnumerable<CategoryResource>>(results.Category);
+            return Ok(resources);
+            //var categories = await _categoryService.ListAsync();
+            //var resources = _mapper.Map<IEnumerable<Category>, IEnumerable<CategoryResource>>(categories);
+            //return resources;
         }
 
         [HttpGet("{id}", Name = "NewCategory")]
-        public async Task<CategoryResource> GetByIdAsync(int id)
+        public async Task<IActionResult> GetByIdAsync(int id)
         {
             var result = await _categoryService.FindByIdAsync(id);
-            var resource = _mapper.Map<Category, CategoryResource>(result);
-            return resource;
+            if (!result.Success)
+            {
+                return BadRequest(result.Message);
+            }
+            var resource = _mapper.Map<IEnumerable<Category>, IEnumerable<CategoryResource>>(result.Category);
+            return Ok(resource);
         }
 
         [HttpPost]
-        public async Task<ActionResult<CategoryResource>> PostAsync([FromBody] SaveCategoryResource resource)
+        public async Task<IActionResult> PostAsync([FromBody] SaveCategoryResource resource)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState.GetErrorMessages());
@@ -50,8 +61,8 @@ namespace WebApplication1.Controllers
             if (!result.Success)
                 return BadRequest(result.Message);
 
-            var categoryResource = _mapper.Map<Category, CategoryResource>(result.Category);
-            return CreatedAtRoute("NewCategory", new { id = categoryResource.Id.ToString() }, categoryResource);
+            var categoryResource = (List<CategoryResource>)_mapper.Map<IEnumerable<Category>, IEnumerable<CategoryResource>>(result.Category);
+            return CreatedAtRoute("NewCategory", new { id = categoryResource[0].Id.ToString() }, categoryResource);
             //return Ok(categoryResource);
         }
 
@@ -67,7 +78,7 @@ namespace WebApplication1.Controllers
             if (!result.Success)
                 return BadRequest(result.Message);
 
-            var categoryResource = _mapper.Map<Category, CategoryResource>(result.Category);
+            var categoryResource = _mapper.Map<IEnumerable<Category>, IEnumerable<CategoryResource>>(result.Category);
             return Ok(categoryResource);
         }
 
@@ -82,7 +93,7 @@ namespace WebApplication1.Controllers
             if (!result.Success)
                 return BadRequest(result.Message);
 
-            var categoryResource = _mapper.Map<Category, CategoryResource>(result.Category);
+            var categoryResource = _mapper.Map<IEnumerable<Category>, IEnumerable<CategoryResource>>(result.Category);
             return Ok(categoryResource);
         }
     }
