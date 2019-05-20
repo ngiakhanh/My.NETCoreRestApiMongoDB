@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using WebApplication1.Domain.Models;
-using WebApplication1.Extensions;
 using WebApplication1.Resources;
 
 namespace WebApplication1.Mapping
