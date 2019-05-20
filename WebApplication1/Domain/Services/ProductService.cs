@@ -63,7 +63,7 @@ namespace WebApplication1.Domain.Services
                 }
 
                 await _productRepository.AddAsync(product);
-                //await _unitOfWork.CompleteAsync();
+                await _unitOfWork.CompleteAsync(_productRepository.ReturnSession());
                 return await FindByIdAsync(product.Id);
             }
             catch (Exception ex)
@@ -85,7 +85,7 @@ namespace WebApplication1.Domain.Services
                 product._id = existingProduct._id;
 
                 await _productRepository.UpdateAsync(id, product);
-                //await _unitOfWork.CompleteAsync();
+                await _unitOfWork.CompleteAsync(_productRepository.ReturnSession());
                 return await FindByIdAsync(product.Id);
             }
             catch (Exception ex)
@@ -105,7 +105,7 @@ namespace WebApplication1.Domain.Services
                 }
 
                 await _productRepository.RemoveAsync(id);
-                //await _unitOfWork.CompleteAsync();
+                await _unitOfWork.CompleteAsync(_productRepository.ReturnSession());
                 IEnumerable<Product> existingProductList = new List<Product>() { existingProduct };
                 return new ProductResponse(existingProductList);
             }

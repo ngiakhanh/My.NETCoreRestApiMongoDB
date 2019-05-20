@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using MongoDB.Driver;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using WebApplication1.Domain.Models;
 
@@ -11,5 +12,6 @@ namespace WebApplication1.Domain.Repositories
         Task<Product> FindByIdAsync(int id);
         Task UpdateAsync(int id, Product product);
         Task RemoveAsync(int id);
+        IClientSessionHandle ReturnSession();
     }
 }

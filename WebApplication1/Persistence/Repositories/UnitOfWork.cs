@@ -1,24 +1,22 @@
-﻿using Microsoft.Extensions.Configuration;
-using MongoDB.Driver;
+﻿using MongoDB.Driver;
 using System.Threading.Tasks;
-using WebApplication1.Domain.Models;
 using WebApplication1.Domain.Repositories;
 
 namespace WebApplication1.Persistence.Repositories
 {
 
-    public class UnitOfWork : BaseRepository, IUnitOfWork
+    public class UnitOfWork : IUnitOfWork
     {
-        private readonly IMongoCollection<Category> _category;
+        //protected readonly IClientSessionHandle _session;
 
-        public UnitOfWork(IConfiguration config) : base(config)
+        public UnitOfWork()
         {
-            _category = _database.GetCollection<Category>("Category");
+
         }
 
-        public async Task CompleteAsync()
+        public async Task CompleteAsync(IClientSessionHandle session)
         {
-            //await _category.SaveChangesAsync();
+            await session.CommitTransactionAsync();
         }
     }
 }

@@ -16,6 +16,12 @@ namespace WebApplication1.Persistence.Repositories
         {
             _product = _database.GetCollection<BsonDocument>("Product");
         }
+
+        public IClientSessionHandle ReturnSession()
+        {
+            return _session;
+        }
+
         public async Task AddAsync(Product product)
         {
             await _product.InsertOneAsync(product.ToBsonDocument());

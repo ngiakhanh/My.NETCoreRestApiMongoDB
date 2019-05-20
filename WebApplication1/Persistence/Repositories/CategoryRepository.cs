@@ -16,6 +16,12 @@ namespace WebApplication1.Persistence.Repositories
         {
             _category = _database.GetCollection<BsonDocument>("Category");
         }
+
+        public IClientSessionHandle ReturnSession()
+        {
+            return _session;
+        }
+
         public async Task AddAsync(Category category)
         {
             await _category.InsertOneAsync(category.ToBsonDocument());

@@ -63,7 +63,7 @@ namespace WebApplication1.Domain.Services
                 }
 
                 await _categoryRepository.AddAsync(category);
-                //await _unitOfWork.CompleteAsync();
+                await _unitOfWork.CompleteAsync(_categoryRepository.ReturnSession());
                 return await FindByIdAsync(category.Id);
             }
             catch (Exception ex)
@@ -85,7 +85,7 @@ namespace WebApplication1.Domain.Services
                 category._id = existingCategory._id;
 
                 await _categoryRepository.UpdateAsync(id, category);
-                //await _unitOfWork.CompleteAsync();
+                await _unitOfWork.CompleteAsync(_categoryRepository.ReturnSession());
                 return await FindByIdAsync(category.Id);
             }
             catch (Exception ex)
@@ -105,7 +105,7 @@ namespace WebApplication1.Domain.Services
                 }
 
                 await _categoryRepository.RemoveAsync(id);
-                //await _unitOfWork.CompleteAsync();
+                await _unitOfWork.CompleteAsync(_categoryRepository.ReturnSession());
                 IEnumerable<Category> existingCategoryList = new List<Category>() { existingCategory };
                 return new CategoryResponse(existingCategoryList);
             }

@@ -1,6 +1,5 @@
-﻿using System;
+﻿using MongoDB.Driver;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using WebApplication1.Domain.Models;
 
@@ -13,5 +12,6 @@ namespace WebApplication1.Domain.Repositories
         Task<Category> FindByIdAsync(int id);
         Task UpdateAsync(int id, Category category);
         Task RemoveAsync(int id);
+        IClientSessionHandle ReturnSession();
     }
 }
