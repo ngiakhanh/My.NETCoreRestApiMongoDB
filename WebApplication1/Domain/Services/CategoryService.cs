@@ -68,6 +68,7 @@ namespace WebApplication1.Domain.Services
             }
             catch (Exception ex)
             {
+                await _unitOfWork.AbortAsync(_categoryRepository.ReturnSession());
                 return new CategoryResponse($"An error occurred when saving the category: {ex.Message}");
             }
 
@@ -90,6 +91,7 @@ namespace WebApplication1.Domain.Services
             }
             catch (Exception ex)
             {
+                await _unitOfWork.AbortAsync(_categoryRepository.ReturnSession());
                 return new CategoryResponse($"An error occurred when updating the category: {ex.Message}");
             }
         }
@@ -111,6 +113,7 @@ namespace WebApplication1.Domain.Services
             }
             catch (Exception ex)
             {
+                await _unitOfWork.AbortAsync(_categoryRepository.ReturnSession());
                 return new CategoryResponse($"An error occurred when deleting the category: {ex.Message}");
             }
         }

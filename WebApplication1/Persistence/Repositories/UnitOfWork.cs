@@ -18,5 +18,10 @@ namespace WebApplication1.Persistence.Repositories
         {
             await session.CommitTransactionAsync();
         }
+
+        public async Task AbortAsync(IClientSessionHandle session)
+        {
+            await session.AbortTransactionAsync();
+        }
     }
 }

@@ -68,6 +68,7 @@ namespace WebApplication1.Domain.Services
             }
             catch (Exception ex)
             {
+                await _unitOfWork.AbortAsync(_productRepository.ReturnSession());
                 return new ProductResponse($"An error occurred when saving the product: {ex.Message}");
             }
 
@@ -90,6 +91,7 @@ namespace WebApplication1.Domain.Services
             }
             catch (Exception ex)
             {
+                await _unitOfWork.AbortAsync(_productRepository.ReturnSession());
                 return new ProductResponse($"An error occurred when updating the product: {ex.Message}");
             }
         }
@@ -111,6 +113,7 @@ namespace WebApplication1.Domain.Services
             }
             catch (Exception ex)
             {
+                await _unitOfWork.AbortAsync(_productRepository.ReturnSession());
                 return new ProductResponse($"An error occurred when deleting the product: {ex.Message}");
             }
         }

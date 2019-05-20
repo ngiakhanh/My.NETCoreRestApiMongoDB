@@ -6,5 +6,6 @@ namespace WebApplication1.Domain.Repositories
     public interface IUnitOfWork
     {
         Task CompleteAsync(IClientSessionHandle session);
+        Task AbortAsync(IClientSessionHandle session);
     }
 }
