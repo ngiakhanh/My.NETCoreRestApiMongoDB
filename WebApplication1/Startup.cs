@@ -31,7 +31,7 @@ namespace WebApplication1
             services.AddScoped<IProductService, ProductService>();
 
             services.AddScoped<IUnitOfWork, UnitOfWork>();
-            services.AddAutoMapper();
+            services.AddAutoMapper(System.AppDomain.CurrentDomain.GetAssemblies());
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
