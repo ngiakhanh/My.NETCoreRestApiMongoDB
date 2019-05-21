@@ -24,7 +24,7 @@ namespace WebApplication1.Persistence.Repositories
 
         public async Task AddAsync(Category category)
         {
-            await _category.InsertOneAsync(category.ToBsonDocument());
+            await _category.InsertOneAsync(_session, category.ToBsonDocument());
         }
 
         public async Task<Category> FindByIdAsync(int id)
@@ -35,7 +35,7 @@ namespace WebApplication1.Persistence.Repositories
                     "Id", id
                 }
             };
-            var result = await _category.Aggregate().Lookup("Product", "Id", "CategoryId", "Products").Match(one => one["Id"] == id).FirstOrDefaultAsync();
+            var result = await _category.Aggregate(_session).Lookup("Product", "Id", "CategoryId", "Products").Match(one => one["Id"] == id).FirstOrDefaultAsync();
             if (result == null)
             {
                 return null;
@@ -45,7 +45,7 @@ namespace WebApplication1.Persistence.Repositories
 
         public async Task<IEnumerable<Category>> ListAsync()
         {
-            var results = await _category.Aggregate().Lookup("Product", "Id", "CategoryId", "Products").SortBy(one => one["Id"]).ToListAsync();
+            var results = await _category.Aggregate(_session).Lookup("Product", "Id", "CategoryId", "Products").SortBy(one => one["Id"]).ToListAsync();
             if (results == null)
             {
                 return null;
@@ -55,12 +55,12 @@ namespace WebApplication1.Persistence.Repositories
 
         public async Task RemoveAsync(int id)
         {
-            await _category.DeleteOneAsync(one => one["Id"] == id);
+            await _category.DeleteOneAsync(_session, one => one["Id"] == id);
         }
 
         public async Task UpdateAsync(int id, Category category)
         {
-            await _category.ReplaceOneAsync(one => one["Id"] == id, category.ToBsonDocument());
+            await _category.ReplaceOneAsync(_session, one => one["Id"] == id, category.ToBsonDocument());
         }
     }
 }

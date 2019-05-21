@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MongoDB.Driver;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using WebApplication1.Domain.Models;
@@ -11,10 +12,12 @@ namespace WebApplication1.Domain.Services
     {
         private readonly IProductRepository _productRepository;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IClientSessionHandle _session;
         public ProductService(IProductRepository productRepository, IUnitOfWork unitOfWork)
         {
             _productRepository = productRepository;
             _unitOfWork = unitOfWork;
+            _session = _productRepository.ReturnSession();
         }
 
         public async Task<ProductResponse> ListAsync()
@@ -31,6 +34,10 @@ namespace WebApplication1.Domain.Services
             catch (Exception ex)
             {
                 return new ProductResponse($"An error occurred when getting the list of products: {ex.Message}");
+            }
+            finally
+            {
+                _unitOfWork.EndSession(_session);
             }
         }
 
@@ -50,10 +57,15 @@ namespace WebApplication1.Domain.Services
             {
                 return new ProductResponse($"An error occurred when finding the product: {ex.Message}");
             }
+            finally
+            {
+                _unitOfWork.EndSession(_session);
+            }
         }
 
         public async Task<ProductResponse> SaveAsync(Product product)
         {
+            _unitOfWork.StartTransaction(_session);
             try
             {
                 var existingProduct = await _productRepository.FindByIdAsync(product.Id);
@@ -63,19 +75,24 @@ namespace WebApplication1.Domain.Services
                 }
 
                 await _productRepository.AddAsync(product);
-                await _unitOfWork.CompleteAsync(_productRepository.ReturnSession());
-                return await FindByIdAsync(product.Id);
+                var foundProduct = await FindByIdAsync(product.Id);
+                await _unitOfWork.CompleteAsync(_session);
+                return foundProduct;
             }
             catch (Exception ex)
             {
-                await _unitOfWork.AbortAsync(_productRepository.ReturnSession());
+                await _unitOfWork.AbortAsync(_session);
                 return new ProductResponse($"An error occurred when saving the product: {ex.Message}");
             }
-
+            finally
+            {
+                _unitOfWork.EndSession(_session);
+            }
         }
 
         public async Task<ProductResponse> UpdateAsync(int id, Product product)
         {
+            _unitOfWork.StartTransaction(_session);
             try
             {
                 var existingProduct = await _productRepository.FindByIdAsync(id);
@@ -86,18 +103,24 @@ namespace WebApplication1.Domain.Services
                 product._id = existingProduct._id;
 
                 await _productRepository.UpdateAsync(id, product);
-                await _unitOfWork.CompleteAsync(_productRepository.ReturnSession());
-                return await FindByIdAsync(product.Id);
+                var updatedProduct = await FindByIdAsync(product.Id);
+                await _unitOfWork.CompleteAsync(_session);
+                return updatedProduct;
             }
             catch (Exception ex)
             {
-                await _unitOfWork.AbortAsync(_productRepository.ReturnSession());
+                await _unitOfWork.AbortAsync(_session);
                 return new ProductResponse($"An error occurred when updating the product: {ex.Message}");
+            }
+            finally
+            {
+                _unitOfWork.EndSession(_session);
             }
         }
 
         public async Task<ProductResponse> DeleteAsync(int id)
         {
+            _unitOfWork.StartTransaction(_session);
             try
             {
                 var existingProduct = await _productRepository.FindByIdAsync(id);
@@ -107,14 +130,18 @@ namespace WebApplication1.Domain.Services
                 }
 
                 await _productRepository.RemoveAsync(id);
-                await _unitOfWork.CompleteAsync(_productRepository.ReturnSession());
                 IEnumerable<Product> existingProductList = new List<Product>() { existingProduct };
+                await _unitOfWork.CompleteAsync(_session);
                 return new ProductResponse(existingProductList);
             }
             catch (Exception ex)
             {
-                await _unitOfWork.AbortAsync(_productRepository.ReturnSession());
+                await _unitOfWork.AbortAsync(_session);
                 return new ProductResponse($"An error occurred when deleting the product: {ex.Message}");
+            }
+            finally
+            {
+                _unitOfWork.EndSession(_session);
             }
         }
     }

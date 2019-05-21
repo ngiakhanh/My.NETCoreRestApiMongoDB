@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MongoDB.Driver;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using WebApplication1.Domain.Models;
@@ -11,10 +12,12 @@ namespace WebApplication1.Domain.Services
     {
         private readonly ICategoryRepository _categoryRepository;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IClientSessionHandle _session;
         public CategoryService(ICategoryRepository categoryRepository, IUnitOfWork unitOfWork)
         {
             _categoryRepository = categoryRepository;
             _unitOfWork = unitOfWork;
+            _session = _categoryRepository.ReturnSession();
         }
 
         public async Task<CategoryResponse> ListAsync()
@@ -31,6 +34,10 @@ namespace WebApplication1.Domain.Services
             catch (Exception ex)
             {
                 return new CategoryResponse($"An error occurred when getting the list of categories: {ex.Message}");
+            }
+            finally
+            {
+                _unitOfWork.EndSession(_session);
             }
         }
 
@@ -50,10 +57,15 @@ namespace WebApplication1.Domain.Services
             {
                 return new CategoryResponse($"An error occurred when finding the category: {ex.Message}");
             }
+            finally
+            {
+                _unitOfWork.EndSession(_session);
+            }
         }
 
         public async Task<CategoryResponse> SaveAsync(Category category)
         {
+            _unitOfWork.StartTransaction(_session);
             try
             {
                 var existingCategory = await _categoryRepository.FindByIdAsync(category.Id);
@@ -63,19 +75,24 @@ namespace WebApplication1.Domain.Services
                 }
 
                 await _categoryRepository.AddAsync(category);
-                await _unitOfWork.CompleteAsync(_categoryRepository.ReturnSession());
-                return await FindByIdAsync(category.Id);
+                var foundCategory = await FindByIdAsync(category.Id);
+                await _unitOfWork.CompleteAsync(_session);
+                return foundCategory;
             }
             catch (Exception ex)
             {
-                await _unitOfWork.AbortAsync(_categoryRepository.ReturnSession());
+                await _unitOfWork.AbortAsync(_session);
                 return new CategoryResponse($"An error occurred when saving the category: {ex.Message}");
             }
-
+            finally
+            {
+                _unitOfWork.EndSession(_session);
+            }
         }
 
         public async Task<CategoryResponse> UpdateAsync(int id, Category category)
         {
+            _unitOfWork.StartTransaction(_session);
             try
             {
                 var existingCategory = await _categoryRepository.FindByIdAsync(id);
@@ -86,18 +103,24 @@ namespace WebApplication1.Domain.Services
                 category._id = existingCategory._id;
 
                 await _categoryRepository.UpdateAsync(id, category);
-                await _unitOfWork.CompleteAsync(_categoryRepository.ReturnSession());
-                return await FindByIdAsync(category.Id);
+                var updatedCategory = await FindByIdAsync(category.Id);
+                await _unitOfWork.CompleteAsync(_session);
+                return updatedCategory;
             }
             catch (Exception ex)
             {
-                await _unitOfWork.AbortAsync(_categoryRepository.ReturnSession());
+                await _unitOfWork.AbortAsync(_session);
                 return new CategoryResponse($"An error occurred when updating the category: {ex.Message}");
+            }
+            finally
+            {
+                _unitOfWork.EndSession(_session);
             }
         }
 
         public async Task<CategoryResponse> DeleteAsync(int id)
         {
+            _unitOfWork.StartTransaction(_session);
             try
             {
                 var existingCategory = await _categoryRepository.FindByIdAsync(id);
@@ -107,14 +130,18 @@ namespace WebApplication1.Domain.Services
                 }
 
                 await _categoryRepository.RemoveAsync(id);
-                await _unitOfWork.CompleteAsync(_categoryRepository.ReturnSession());
                 IEnumerable<Category> existingCategoryList = new List<Category>() { existingCategory };
+                await _unitOfWork.CompleteAsync(_session);
                 return new CategoryResponse(existingCategoryList);
             }
             catch (Exception ex)
             {
-                await _unitOfWork.AbortAsync(_categoryRepository.ReturnSession());
+                await _unitOfWork.AbortAsync(_session);
                 return new CategoryResponse($"An error occurred when deleting the category: {ex.Message}");
+            }
+            finally
+            {
+                _unitOfWork.EndSession(_session);
             }
         }
     }

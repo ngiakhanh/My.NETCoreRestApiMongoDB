@@ -23,5 +23,18 @@ namespace WebApplication1.Persistence.Repositories
         {
             await session.AbortTransactionAsync();
         }
+
+        public void StartTransaction(IClientSessionHandle session)
+        {
+            session.StartTransaction(new TransactionOptions(readConcern: ReadConcern.Snapshot, writeConcern: WriteConcern.WMajority));
+        }
+
+        public void EndSession(IClientSessionHandle session)
+        {
+            if (!session.IsInTransaction)
+            {
+                session.Dispose();
+            }
+        }
     }
 }

@@ -11,8 +11,7 @@ namespace WebApplication1.Persistence.Repositories
         {
             var client = new MongoClient(config.GetConnectionString("Test"));
             _session = client.StartSession();
-            _database = _session.Client.GetDatabase("Test");
-            _session.StartTransaction();
+            _database = client.GetDatabase("Test");
         }
     }
 }

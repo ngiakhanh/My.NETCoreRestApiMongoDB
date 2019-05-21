@@ -7,5 +7,7 @@ namespace WebApplication1.Domain.Repositories
     {
         Task CompleteAsync(IClientSessionHandle session);
         Task AbortAsync(IClientSessionHandle session);
+        void StartTransaction(IClientSessionHandle session);
+        void EndSession(IClientSessionHandle session);
     }
 }
